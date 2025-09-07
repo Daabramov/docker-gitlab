@@ -332,6 +332,26 @@ gitlab_configure_actioncable() {
     REDIS_DB_NUMBER
 }
 
+gitlab_configure_bundle_uri() {
+  echo "Configuring gitaly::bundle_uri..."
+  
+  if [[ ${GITALY_BUNDLE_URI_ENABLED} == true ]]; then
+    # Remove the bundle_uri section placeholders
+    exec_as_git sed -i "/#start-bundle-uri/d" ${GITLAB_GITALY_CONFIG}
+    exec_as_git sed -i "/#end-bundle-uri/d" ${GITLAB_GITALY_CONFIG}
+    
+    # Update the bundle_uri configuration
+    update_template ${GITLAB_GITALY_CONFIG} \
+      GITALY_BUNDLE_URI_GO_CLOUD_URL
+    
+    echo "Bundle URIs enabled with storage: ${GITALY_BUNDLE_URI_GO_CLOUD_URL}"
+  else
+    # Remove the entire bundle_uri section if disabled
+    exec_as_git sed -i "/#start-bundle-uri/,/#end-bundle-uri/d" ${GITLAB_GITALY_CONFIG}
+    echo "Bundle URIs disabled"
+  fi
+}
+
 gitlab_configure_gitaly() {
   echo "Configuring gitlab::gitaly..."
   update_template ${GITLAB_GITALY_CONFIG} \
@@ -345,6 +365,8 @@ gitlab_configure_gitaly() {
   update_template ${GITLAB_CONFIG} \
     GITALY_CLIENT_PATH \
     GITALY_TOKEN
+
+  gitlab_configure_bundle_uri
 
 }
 

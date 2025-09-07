@@ -52,6 +52,7 @@
     - [External Issue Trackers](#external-issue-trackers)
     - [Host UID / GID Mapping](#host-uid--gid-mapping)
     - [Piwik](#piwik)
+    - [Bundle URIs](#bundle-uris)
     - [Feature flags](#feature-flags)
     - [Exposing ssh port in dockerized gitlab-ce](docs/exposing-ssh-port.md)
     - [Available Configuration Parameters](#available-configuration-parameters)
@@ -868,6 +869,26 @@ These options should contain something like:
 - `PIWIK_URL=piwik.example.org`
 - `PIWIK_SITE_ID=42`
 
+#### Bundle URIs
+
+Bundle URIs can significantly speed up Git clones and fetches by pre-loading repository data from CDNs or other storage providers before fetching remaining objects from GitLab. This reduces server load and improves performance for users with poor network connections.
+
+To enable Bundle URIs support:
+
+```yaml
+version: '3'
+services:
+  gitlab:
+    image: sameersbn/gitlab:latest
+    environment:
+      - GITALY_BUNDLE_URI_ENABLED=true
+      - GITALY_BUNDLE_URI_GO_CLOUD_URL=s3://my-bundle-bucket?region=us-west-1
+      - GITALY_BUNDLE_URI_AWS_ACCESS_KEY_ID=your_access_key
+      - GITALY_BUNDLE_URI_AWS_SECRET_ACCESS_KEY=your_secret_key
+```
+
+Bundle URIs supports AWS S3, Google Cloud Storage, Azure Blob Storage, and S3-compatible storage providers like MinIO. See [BUNDLE_URIS.md](BUNDLE_URIS.md) for detailed configuration options and examples.
+
 #### Feature flags
 
 In this section, we talk about feature flags that administrators can change the state (See <https://docs.gitlab.com/ee/administration/feature_flags.html>). If you are looking for documentation for "Feature flags" that configured on project deploy settings, see <https://docs.gitlab.com/ee/operations/feature_flags.html>
@@ -1655,6 +1676,42 @@ Set default path for gitaly. defaults to `/home/git/gitaly`
 ##### `GITALY_TOKEN`
 
 Set a gitaly token, blank by default.
+
+##### `GITALY_BUNDLE_URI_ENABLED`
+
+Enable Bundle URIs feature for accelerated Git operations. Defaults to `false`.
+
+##### `GITALY_BUNDLE_URI_GO_CLOUD_URL`
+
+The storage URL for Bundle URIs. Supports `s3://`, `gs://`, `azblob://` schemes. No default.
+
+##### `GITALY_BUNDLE_URI_AWS_ACCESS_KEY_ID`
+
+AWS Access Key ID for S3 storage. Defaults to the value of `AWS_ACCESS_KEY_ID`.
+
+##### `GITALY_BUNDLE_URI_AWS_SECRET_ACCESS_KEY`
+
+AWS Secret Access Key for S3 storage. Defaults to the value of `AWS_SECRET_ACCESS_KEY`.
+
+##### `GITALY_BUNDLE_URI_AWS_REGION`
+
+AWS Region for S3 storage. Defaults to the value of `AWS_REGION`.
+
+##### `GITALY_BUNDLE_URI_GOOGLE_APPLICATION_CREDENTIALS`
+
+Path to Google Cloud Service Account JSON file. No default.
+
+##### `GITALY_BUNDLE_URI_AZURE_STORAGE_ACCOUNT`
+
+Azure Storage Account name for Azure Blob Storage. No default.
+
+##### `GITALY_BUNDLE_URI_AZURE_STORAGE_KEY`
+
+Azure Storage Key for Azure Blob Storage. No default.
+
+##### `GITALY_BUNDLE_URI_AZURE_STORAGE_SAS_TOKEN`
+
+Azure Storage SAS Token (alternative to storage key). No default.
 
 ##### `GITLAB_MONITORING_UNICORN_SAMPLER_INTERVAL`
 

@@ -96,3 +96,10 @@ dir = "{{GITLAB_SHELL_INSTALL_DIR}}"
 secret_file = "/home/git/gitlab-shell/.gitlab_shell_secret"
 url = "http://localhost:8181{{GITLAB_RELATIVE_URL_ROOT}}"
 
+# Bundle URI configuration for reducing clone and fetch load
+# Documentation: https://docs.gitlab.com/administration/gitaly/bundle_uris/
+{{#start-bundle-uri}}
+[bundle_uri]
+go_cloud_url = "{{GITALY_BUNDLE_URI_GO_CLOUD_URL}}"
+{{#end-bundle-uri}}
+
